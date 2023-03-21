@@ -1,6 +1,7 @@
 import logging
 import openai
 import os
+from shared_code import constants as c #(relative)
 import azure.functions as func
 
 # Sample Request 
@@ -8,18 +9,27 @@ import azure.functions as func
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     # Get parameters from request body
+    openai.api_type = c.apiType
+    openai.api_base = c.apiBase
+    openai.api_version = c.apiVersion
+    openai.api_key = os.environ["OpenAI"]
     request_body = req.get_json()
 
 
     # Authenticate with openAI API secret
     # Call the openAI API
     try:
-            openai.api_key = request_body['api_secret']
+
             response = openai.Completion.create(
-            model = request_body['model']
+            engine = c.model
             , prompt = request_body['prompt']
             , max_tokens = request_body['max_tokens']
             , temperature = request_body['temperature']
+            , top_p = c.topP
+            , frequency_penalty = c.frequencyPenalty
+            , presence_penalty = c.presensePenalty
+            , best_of = c.bestOf
+            , stop = None
             )
     except:
         logging.info('OpenAI API request failed')

@@ -1,7 +1,6 @@
 import logging
 import openai
 import os
-from shared_code import constants as c #(relative)
 import azure.functions as func
 
 # Sample Request 
@@ -9,9 +8,9 @@ import azure.functions as func
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     # Get parameters from request body
-    openai.api_type = c.apiType
-    openai.api_base = c.apiBase
-    openai.api_version = c.apiVersion
+    openai.api_type = "Azure"
+    openai.api_base = "https://oai-gptdemo-dev-eastus-01.openai.azure.com/"
+    openai.api_version = "2022-12-01"
     openai.api_key = os.environ["OpenAI"]
     request_body = req.get_json()
 
@@ -21,14 +20,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
 
             response = openai.Completion.create(
-            engine = c.model
+            engine = "gpt-davinci003-demo-eastus-01"
             , prompt = request_body['prompt']
             , max_tokens = request_body['max_tokens']
             , temperature = request_body['temperature']
-            , top_p = c.topP
-            , frequency_penalty = c.frequencyPenalty
-            , presence_penalty = c.presensePenalty
-            , best_of = c.bestOf
+            , top_p = 0.5
+            , frequency_penalty = 0
+            , presence_penalty = 0
+            , best_of = 1
             , stop = None
             )
     except:

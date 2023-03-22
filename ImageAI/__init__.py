@@ -13,7 +13,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # Authenticate with openAI API secret
     # Call the openAI API
     try:
-            openai.api_key = os.getenv("OpenAIDALLE")
+            openai.api_key = os.environ["OpenAIDALLE"]
             response = openai.Image.create(
             prompt = request_body['prompt']
             , n = request_body['n']

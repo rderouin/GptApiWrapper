@@ -21,7 +21,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             )
     except Exception as e:
         logging.info(request_body)
-        return func.HttpResponse("Bad request: "+ str(e),status_code=500)
+        return func.HttpResponse("Bad request: "+ str(e),status_code=400)
         
 
     # Get image

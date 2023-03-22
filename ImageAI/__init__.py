@@ -13,15 +13,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # Authenticate with openAI API secret
     # Call the openAI API
     try:
-            openai.api_key = os.environ["OpenAIDALLE"]
+            openai.api_key = request_body['api_secret']
             response = openai.Image.create(
             prompt = request_body['prompt']
             , n = request_body['n']
             , size = request_body['size']
             )
-    except Exception as e:
+    except:
         logging.info(request_body)
-        return func.HttpResponse("Bad request: "+ str(e),status_code=400)
+        return func.HttpResponse("Bad request. Malformed request body for OpenAI Image create api",status_code=400)
         
 
     # Get image

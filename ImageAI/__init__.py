@@ -1,5 +1,7 @@
 import logging
 import openai
+import os
+import requests
 import azure.functions as func
 
 
@@ -11,15 +13,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     # Authenticate with openAI API secret
     # Call the openAI API
     try:
-            openai.api_key = request_body['api_secret']
+            openai.api_key = os.getenv("OpenAIDALLE")
             response = openai.Image.create(
             prompt = request_body['prompt']
             , n = request_body['n']
             , size = request_body['size']
             )
-    except:
+    except Exception as e:
         logging.info(request_body)
-        return func.HttpResponse("Bad request. Malformed request body for OpenAI Image create api",status_code=400)
+        return func.HttpResponse("Bad request: "+ str(e),status_code=500)
         
 
     # Get image

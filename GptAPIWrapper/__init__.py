@@ -12,13 +12,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     openai.api_base = "https://oai-gptdemo-dev-eastus-01.openai.azure.com/"
     openai.api_version = "2022-12-01"
     openai.api_key = os.environ["OpenAI"]
-    request_body = req.get_json()
-
 
     # Authenticate with openAI API secret
     # Call the openAI API
     try:
-
+            request_body = req.get_json()
             response = openai.Completion.create(
             engine = "gpt-davinci003-demo-eastus-01"
             , prompt = request_body['prompt']
@@ -30,9 +28,28 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             , best_of = 1
             , stop = None
             )
-    except:
-        logging.info('OpenAI API request failed')
-        return func.HttpResponse("Bad request. Malformed request body for OpenAI Completion create api",status_code=400)
+    except Exception as e:
+        response = str(e)
+        statusCode = 200
+
+        #Handle for missing parameters
+        #Handle for data types
+        #Handle for other request errors
+        if response.lower() == "'prompt'" or response.lower() == "'max_tokens'" or response.lower() == "'temperature'":
+             statusCode = 400
+             response = "Request Body Exception: " + response  + " parameter is missing from JSON!"
+        elif response.__contains__("is not of type"):
+             statusCode = 400
+             response = "Request Body Exception: " + response
+        elif response.__contains__("does not contain valid JSON data"):
+             statusCode = 400
+             response = "Request Body Exception: " + response 
+        else:
+             statusCode = 500
+             response = "Response Exception: " + response    
+       
+        logging.info(response)
+        return func.HttpResponse(response,status_code=statusCode)
         
 
     # Format the response

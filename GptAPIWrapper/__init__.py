@@ -1,6 +1,7 @@
 import logging
 import openai
 import os
+from requests.exceptions import HTTPError
 import azure.functions as func
 
 # Sample Request 
@@ -18,16 +19,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
             request_body = req.get_json()
             response = openai.Completion.create(
-            engine = "gpt-davinci003-demo-eastus-01"
-            , prompt = request_body['prompt']
-            , max_tokens = request_body['max_tokens']
-            , temperature = request_body['temperature']
-            , top_p = 0.5
-            , frequency_penalty = 0
-            , presence_penalty = 0
-            , best_of = 1
-            , stop = None
+               engine = "gpt-davinci003-demo-eastus-01"
+               , prompt = request_body['prompt']
+               , max_tokens = request_body['max_tokens']
+               , temperature = request_body['temperature']
+               , top_p = 0.5
+               , frequency_penalty = 0
+               , presence_penalty = 0
+               , best_of = 1
+               , stop = None
             )
+    except HTTPError as http_e:
+        response = f"Http error occured {http_e}"
+        return func.HttpResponse(response,status_code = http_e.response.status_code)         
     except Exception as e:
         response = str(e)
         statusCode = 200
@@ -43,7 +47,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
              response = "Request Body Exception: " + response
         elif response.__contains__("does not contain valid JSON data"):
              statusCode = 400
-             response = "Request Body Exception: " + response 
+             response = "Request Body Exception: " + response
         else:
              statusCode = 500
              response = "Response Exception: " + response    

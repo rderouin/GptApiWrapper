@@ -4,26 +4,29 @@ import os
 from requests.exceptions import HTTPError
 import json
 import azure.functions as func
+import asyncio
 
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    
+
+async def main(req: func.HttpRequest) -> func.HttpResponse:
     
     # Authenticate with openAI API secret
     # Validate request body
     # Call the openAI API
+
      try:
-               request_body = req.get_json()
-               logging.info(str(request_body))
+               request_body = await req.get_json()
                openai.api_key = os.environ["OpenAIDALLE"]
-               response = openai.Image.create(
+
+               response =  openai.Image.create(
                     prompt = request_body['prompt']
                     , n = request_body['n']
                     , size = request_body['size']
                )
      except HTTPError as http_e:
+          #Errors from OpenAI
           response = f"Http error occured {http_e}"
-          return  func.HttpResponse(response,status_code = http_e.response.status_code)
+          return await  func.HttpResponse(response,status_code = http_e.response.status_code)
      except Exception as e:
           response = str(e)
           statusCode = 200
@@ -40,10 +43,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
              statusCode = 500
              response = "Response Exception: " + response 
           logging.error(response)
-          return  func.HttpResponse(response, status_code = statusCode)
+          return await  func.HttpResponse(response, status_code = statusCode)
 
      # Get image
      response = response['data'][0]['url']
 
      # Provide the response back to http client
-     return func.HttpResponse(response,status_code=200)
+     return await func.HttpResponse(response,status_code=200)
